@@ -80,6 +80,18 @@ running record. Newest entries at the bottom.*
   spaces/commas from lane names (invalid HTML ids) — fixed by slugifying IDs
   in the engine; covered by the drive test from here on.
 
+## Amendments
+
+- **2026-10-17 (Career Development Faye, back-end review): the verbatim rule.**
+  "User words are data, not raw material" — interview answers, override
+  reasons, and quoted teaching pass through verbatim; Spark phrases agent-side
+  narration around engine facts and user text and never rewrites user text.
+  Verified against the build: v0 is compliant by construction (taught reasons
+  are stored and re-quoted character-for-character; the mirror assembles the
+  planner's selections mechanically; Spark never receives user text at all —
+  generation was build-time). The rule binds v0.1's live calls. Recorded in
+  `data/agent-language.json` provenance and the README.
+
 ## Open / next (v0.1 candidates)
 
 - Live Muse Spark calls via a small backend proxy (key stays server-side).
