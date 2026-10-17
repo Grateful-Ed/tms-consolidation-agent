@@ -110,6 +110,19 @@ running record. Newest entries at the bottom.*
   couldn't resize); the live build uses the same responsive pattern as the
   audited mock.
 
+- **2026-10-17 (Career Development Faye): data believability check — PASS,
+  no changes requested.** She read the actual files. Notes worth keeping:
+  the $182 stackability figure ties out exactly (7 pallets × $26); the
+  customer economics encode the politics (Hartline's $2,600 failure cost vs
+  $250–$500 for everyone else is *why* its struggles rank and Greenville
+  stays silent); Copperline's two shipments share a ~1,120 lb/pallet
+  signature (dense manufactured freight, twice) — "the kind of detail that
+  makes sample data feel like a ledger extract"; appointments are all
+  next-day against same-day ready times, and Dana's stack rule explicitly
+  allows mixed loads, making the $182 a priced risk of a legal arrangement
+  rather than a ban violation. Her copy pass follows her live-demo critique
+  drive (she wants the texts as rendered before marking lines).
+
 ## Open / next (v0.1 candidates)
 
 - Live Muse Spark calls via a small backend proxy (key stays server-side).
