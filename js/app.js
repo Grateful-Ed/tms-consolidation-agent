@@ -24,6 +24,7 @@
     layer: TMSLayer.loadLayer(),
     draft: null,           // {answers:{}, skipped:[]} while interviewing
     plan: null,            // last engine result (stage 3)
+    planStale: false,      // layer changed after the run (Career Faye's leak #2)
     planLayerSnapshot: null,
     resolved: {},          // struggleId -> {action, text}
     streak: TMSLayer.loadStreak(),
@@ -261,6 +262,9 @@
     if (!S.plan) return;
     var note = (S.layer.savedAt ? '' :
       '<p class="stage-note">Running on facility defaults — the interview in stage 1 is how you make them yours.</p>');
+    if (S.planStale) {
+      note += '<div class="delta"><b>Your layer changed after this run.</b> The plan below cites the layer as it was at run time — including anything since struck. Re-run (stage 5, or the button above) to apply the current layer.</div>';
+    }
     $('planBox').innerHTML = note + S.plan.loads.map(function (l) { return loadCard(l, 'main'); }).join('');
     bindPlanActions($('planBox'), 'main');
   }
@@ -313,6 +317,7 @@
               S.layer = TMSLayer.saveLayer(S.layer);
             }
             S.resolved[f.s.id] = { action: 'change', text: 'Changed — and taught: “' + reason + '” Remembered for ' + f.load.lane + '.' };
+            S.planStale = true;
             logDecision({ when: new Date().toISOString(), action: 'change', struggleId: f.s.id, text: 'Changed it — taught: “' + reason + '”' });
             renderDefinitions(); renderAudit(); renderRerun(true);
             renderPlan();
@@ -333,9 +338,12 @@
 
   function renderStreak() {
     var b = S.streak.base;
-    $('streakValue').textContent = fill(S.lang.streakCaption, {
+    // The 212 base is SAMPLE backstory and is labeled as such — a streak in
+    // the real product starts at zero and only counts real proposals
+    // (Career Development Faye's leak #3: no manufactured confidence).
+    $('streakValue').innerHTML = esc(fill(S.lang.streakCaption, {
       total: b.total, taken: b.taken, changed: b.changed, rejected: b.rejected
-    });
+    })) + ' <span class="tag">sample history</span>';
     var s = S.streak.session;
     $('streakSession').textContent = (s.taken || s.changed || s.rejected)
       ? 'This session: ' + s.taken + ' taken · ' + s.changed + ' changed · ' + s.rejected + ' rejected'
@@ -374,6 +382,7 @@
       });
       $('rerunOut').innerHTML = html;
       S.plan = after;
+      S.planStale = false;
       renderPlan();
     };
     if (announce) { box.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }
@@ -411,6 +420,7 @@
     $('auditBox').querySelectorAll('[data-strike-kind]').forEach(function (b) {
       b.onclick = function () {
         S.layer = TMSLayer.strikeFromLayer(S.layer, b.dataset.strikeKind, b.dataset.strikeKey);
+        if (S.plan) { S.planStale = true; renderPlan(); }
         renderAudit(); renderDefinitions(); renderInterview(); renderRerun(false);
       };
     });
@@ -433,6 +443,7 @@
       $('runBtn').onclick = function () {
         S.plan = TMSEngine.plan(S.ships, S.defs, S.layer);
         S.resolved = {};
+        S.planStale = false;
         renderPlan(); renderRerun(false);
       };
       $('exportBtn').onclick = function () {
