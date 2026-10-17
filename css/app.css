@@ -105,6 +105,26 @@ th { color: var(--faint); font-size: 11px; letter-spacing: .1em; text-transform:
 .strike { color: var(--danger); border-color: rgba(224,93,93,.5); background: transparent; font-size: 12px; padding: 4px 10px; }
 .audit-actions { display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
 .file-label { border: 1px solid var(--line); border-radius: 8px; padding: 8px 14px; cursor: pointer; background: transparent; }
+.profile-bar { max-width: 1080px; margin: 8px auto 0; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.profile-bar label { font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--faint); }
+.profile-bar select { background: var(--card); color: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 7px 10px; font: inherit; }
+.profile-note { color: var(--faint); font-size: 12px; }
+.mode-toggle { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+.mode-btn.picked { border-color: var(--s1); outline: 2px solid var(--s1); }
+.live-key { display: flex; gap: 8px; flex-wrap: wrap; }
+.live-key input { flex: 1 1 300px; background: var(--bg); color: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 9px 11px; font: inherit; }
+.live-keynote { color: var(--faint); font-size: 12px; }
+.live-meta { display: flex; gap: 14px; align-items: center; margin: 10px 0; font-size: 13px; color: var(--dim); }
+.live-log { max-height: 380px; overflow-y: auto; border: 1px solid var(--line); border-radius: var(--radius); padding: 10px; background: #10161e; }
+.live-log:empty { display: none; }
+.live-msg { margin-bottom: 10px; }
+.live-msg b { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--faint); }
+.live-msg p { margin: 2px 0 0; font-size: 15px; white-space: pre-wrap; }
+.live-msg.agent p { color: var(--ink); }
+.live-msg.you p { color: var(--s2); }
+.live-input { display: flex; gap: 8px; margin-top: 10px; }
+.live-input input { flex: 1; background: var(--bg); color: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 9px 11px; font: inherit; }
+.live-prose { font-size: 14px; color: var(--dim); }
 footer { max-width: 1080px; margin: 0 auto; padding: 0 20px 30px; color: var(--faint); font-size: 12px; }
 @media (max-width: 760px) {
   .desk-grid, .loop-grid, .compare { grid-template-columns: 1fr; }
