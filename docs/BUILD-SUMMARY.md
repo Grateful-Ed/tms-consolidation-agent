@@ -185,6 +185,15 @@ running record. Newest entries at the bottom.*
   unverified by anyone: the live build at phone width (her driver can't
   resize; the CSS is the audited mock's pattern, but the check is owed).
 
+- **2026-10-17 (Career Development Faye): all four lanes closed.** Her
+  closing note, for the record: the flow test and the skeptic's read caught
+  different things ("does the flow complete" vs "did it listen to me" —
+  both questions needed, neither sufficient alone); she singled out the
+  residual struggle at the FULL $1,165 (no discounting the problem because
+  a remedy was attempted) and the confession card as a new struggle-report
+  category — a conflict between the layer and the fix, confessed in the
+  open. Open debt unchanged: phone width on the live build.
+
 ## Open / next (v0.1 candidates)
 
 - Live Muse Spark calls via a small backend proxy (key stays server-side).
