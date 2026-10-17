@@ -21,6 +21,14 @@
     </div>
   </div>
   <p class="provenance" id="provenanceLine">Loading…</p>
+  <div class="profile-bar">
+    <label for="profileSelect">User</label>
+    <select id="profileSelect"></select>
+    <button class="ghost" id="newProfileBtn">＋ New user</button>
+    <button class="ghost" id="renameProfileBtn">Rename</button>
+    <button class="ghost" id="deleteProfileBtn">Delete user</button>
+    <span class="profile-note">Each user has their own interview, layer, streak, and teaching — all saved in this browser.</span>
+  </div>
 </header>
 
 <main>
@@ -28,8 +36,15 @@
   <!-- STAGE 1 · CURATION -->
   <section class="stage stage-1" id="stage1">
     <div class="stage-head"><span class="stage-num">1</span><h2>Onboarding — the agent learns how you work</h2></div>
-    <div id="interviewBox"></div>
-    <div id="mirrorBox"></div>
+    <div class="mode-toggle">
+      <button class="mode-btn picked" id="modeStructured">Structured interview</button>
+      <button class="mode-btn" id="modeLive">Live interview with the agent (API)</button>
+    </div>
+    <div id="structuredPane">
+      <div id="interviewBox"></div>
+      <div id="mirrorBox"></div>
+    </div>
+    <div id="livePane" hidden><div id="liveBox"></div></div>
   </section>
 
   <!-- STAGE 2 · THE DESK -->
@@ -94,6 +109,7 @@
 
 <script src="js/engine.js"></script>
 <script src="js/layer.js"></script>
+<script src="js/interview.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>
