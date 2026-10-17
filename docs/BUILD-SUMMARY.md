@@ -159,6 +159,32 @@ running record. Newest entries at the bottom.*
   user's layer). The real-key live interview itself is William's to try —
   the vault key cannot be typed into a public page by an agent, by design.
 
+- **2026-10-17 (Career Development Faye): live-demo trust critique + copy
+  pass — dispositioned and fixed.** Her verifications: the lever test passed
+  decisively ("promised day" erased the $1,165 struggle; plan reverted to
+  $898); every figure tied out to the dollar from stated parameters;
+  Greenville's silence earned. Fixes shipped from her findings:
+  (1) **Taught-rule semantics (her main finding — and she was right):** a
+  rule whose words forbid splitting ("Hartline loads never split…") now
+  BLOCKS the split remedy, with a "Your rule forbids the fix I know" card;
+  and the split-off shipment's own clock is computed and shown — S-102 solo
+  still arrives 10:30 against its 10:00 appointment, so a $1,165 residual
+  struggle is now REPORTED ("Shown, not absorbed") instead of vanishing.
+  The workings also carry a "How I applied your rule" line quoting the
+  taught words. (2) The stale-plan banner now NAMES what changed (taught /
+  struck / silenced items) instead of a generic warning. (3) The streak's
+  "(sample history)" moved into the caption as plain text where any reader
+  sees it. (4) Copy pass a–f: payoff punctuation join fixed; mirror delta
+  splice de-collided; mirror lines rewritten as full first-person clauses;
+  landing signal restored mid-interview ("One more — then I'll show you
+  what I've got"); the $419 split cost now carries its composition
+  ("60% of a full Charlotte run at Meridian's $2.85/mi × 245 mi ($698) —
+  the minimum charge for a second, part-loaded truck"); workings text
+  wraps instead of clipping at narrow widths. Tests: engine 15/15
+  (residual + never-split cases added), UI drives 15/15 + 13/13. Still
+  unverified by anyone: the live build at phone width (her driver can't
+  resize; the CSS is the audited mock's pattern, but the check is owed).
+
 ## Open / next (v0.1 candidates)
 
 - Live Muse Spark calls via a small backend proxy (key stays server-side).
