@@ -130,6 +130,9 @@
     Object.keys(layerLike.taught || {}).forEach(function (rid) {
       lines.push('<li>Taught: “' + esc(layerLike.taught[rid].text) + '”</li>');
     });
+    (layerLike.notes || []).forEach(function (n) {
+      lines.push('<li>In my words: “' + esc(n.text) + '”</li>');
+    });
     var ds = deltas(layerLike.answers || {});
     var deltaHtml = ds.length
       ? ds.map(function (d) {
@@ -178,6 +181,10 @@
     Object.keys(S.layer.taught || {}).forEach(function (rid) {
       html += '<div class="def">“' + esc(S.layer.taught[rid].text) +
         '”<div class="meta">taught rule · yours · ' + esc(S.layer.taught[rid].date) + ' · user layer</div></div>';
+    });
+    (S.layer.notes || []).forEach(function (n) {
+      html += '<div class="def">“' + esc(n.text) +
+        '”<div class="meta">interview note · your words, verbatim · ' + esc(n.date || '') + ' · user layer</div></div>';
     });
     (S.layer.skipped || []).forEach(function (qid) {
       html += '<div class="def"><i>Skipped in your interview — the facility default applies.</i>' +
@@ -412,6 +419,10 @@
       html += '<div class="audit-item"><div><span class="kind">taught rule</span><br>“' + esc(S.layer.taught[rid].text) +
         '”</div><button class="strike" data-strike-kind="taught" data-strike-key="' + rid + '">Strike</button></div>';
     });
+    (S.layer.notes || []).forEach(function (n, i) {
+      html += '<div class="audit-item"><div><span class="kind">interview note</span><br>“' + esc(n.text) +
+        '”</div><button class="strike" data-strike-kind="note" data-strike-key="' + i + '">Strike</button></div>';
+    });
     (S.layer.skipped || []).forEach(function (qid) {
       html += '<div class="audit-item"><div><span class="kind">skip on record</span><br>' + esc(qid) +
         ' — facility default applies</div><button class="strike" data-strike-kind="skip" data-strike-key="' + qid + '">Strike</button></div>';
@@ -428,6 +439,71 @@
 
   /* ---------- boot ---------- */
 
+  /* ---------- users (profiles) ---------- */
+
+  var liveMounted = false;
+
+  function renderProfiles() {
+    var store = TMSLayer.profiles();
+    $('profileSelect').innerHTML = store.profiles.map(function (p) {
+      return '<option value="' + p.id + '"' + (p.id === store.activeId ? ' selected' : '') + '>' + esc(p.name) + '</option>';
+    }).join('');
+  }
+
+  function reloadUserState() {
+    S.layer = TMSLayer.loadLayer();
+    S.streak = TMSLayer.loadStreak();
+    S.suppressions = TMSLayer.loadSuppressions();
+    S.plan = null; S.resolved = {}; S.draft = null; S.planStale = false;
+    $('planBox').innerHTML = '';
+    renderProfiles();
+    renderInterview(); renderDefinitions();
+    renderStreak(); renderDecisions(); renderAudit(); renderRerun(false);
+  }
+
+  function wireProfilesAndModes() {
+    $('profileSelect').onchange = function () {
+      TMSLayer.switchProfile($('profileSelect').value);
+      reloadUserState();
+    };
+    $('newProfileBtn').onclick = function () {
+      var name = prompt('Name for the new user (e.g. a persona you want to test):', '');
+      if (name === null) return;
+      TMSLayer.createProfile(name.trim() || undefined);
+      reloadUserState();
+      document.getElementById('stage1').scrollIntoView({ behavior: 'smooth' });
+    };
+    $('renameProfileBtn').onclick = function () {
+      var p = TMSLayer.activeProfile();
+      var name = prompt('Rename this user:', p.name);
+      if (name === null || !name.trim()) return;
+      TMSLayer.renameProfile(p.id, name.trim());
+      renderProfiles();
+    };
+    $('deleteProfileBtn').onclick = function () {
+      var p = TMSLayer.activeProfile();
+      if (!confirm('Delete user "' + p.name + '" and everything saved for them in this browser?')) return;
+      if (TMSLayer.deleteProfile(p.id)) reloadUserState();
+      else alert('The last user cannot be deleted.');
+    };
+    $('modeStructured').onclick = function () {
+      $('modeStructured').classList.add('picked'); $('modeLive').classList.remove('picked');
+      $('structuredPane').hidden = false; $('livePane').hidden = true;
+    };
+    $('modeLive').onclick = function () {
+      $('modeLive').classList.add('picked'); $('modeStructured').classList.remove('picked');
+      $('structuredPane').hidden = true; $('livePane').hidden = false;
+      if (!liveMounted) {
+        liveMounted = true;
+        TMSInterview.mount($('liveBox'), { onSaved: function () { reloadUserState(); } });
+      }
+    };
+    window.addEventListener('tms:layer-changed', function () {
+      S.layer = TMSLayer.loadLayer();
+      renderDefinitions(); renderAudit();
+    });
+  }
+
   function boot() {
     Promise.all([
       fetch('data/shipments.json').then(function (r) { return r.json(); }),
@@ -438,6 +514,8 @@
       S.defs = parts[1];
       S.lang = parts[2].strings;
       $('provenanceLine').textContent = parts[2].provenance.rule;
+      wireProfilesAndModes();
+      renderProfiles();
       renderInterview(); renderShipments(); renderDefinitions();
       renderStreak(); renderDecisions(); renderExceptions(); renderAudit(); renderRerun(false);
       $('runBtn').onclick = function () {
