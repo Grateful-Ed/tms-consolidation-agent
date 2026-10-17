@@ -123,6 +123,42 @@ running record. Newest entries at the bottom.*
   rather than a ban violation. Her copy pass follows her live-demo critique
   drive (she wants the texts as rendered before marking lines).
 
+## v0.2 — same day (2026-10-17, William's follow-up requests)
+
+- **Verbatim record:** William asked to also see the Faye↔Faye back-and-forth
+  itself, not only this summary. It is compiled at `docs/FAYE-EXCHANGE.md`
+  (31 messages, 2:48–3:24 PM ET, bodies verbatim, transport boilerplate
+  stripped; the Oct 16 drive-home relay is a separate corpus, noted as such).
+- **Multiple users (profiles):** the demo now supports several users in one
+  browser — create / rename / delete / switch from the bar under the header.
+  Each user has their own interview, layer, streak, suppressions, and
+  teaching, stored per-profile in localStorage; the single-user data from
+  v0 is adopted into the first profile, not discarded. Purpose, in William's
+  words: test personas faster without overwriting one user's answers.
+- **Live interview:** stage 1 gains a second mode — a real conversation with
+  Muse Spark instead of the three fixed questions. The agent asks one
+  question at a time, is instructed to dig when an answer is vague,
+  rehearsed, or self-contradictory (ask for the last real example), signals
+  its landing, asks one catch-all, and closes with a first-person mirror
+  quoting the user's words verbatim plus a machine-readable layer extract
+  (the three engine levers, verbatim notes, skips). Soft limit: 10 minutes
+  (visible clock; past it, the agent is told to land). The save gate applies
+  unchanged: the mirror is a DRAFT until Save.
+  - **Key mechanics (the honest constraint):** a public static page still
+    cannot hold the API key. Verified 2026-10-17 that api.meta.ai answers
+    browser calls (`Access-Control-Allow-Origin: *`), so the live mode takes
+    the USER's own key: pasted into the page, kept in sessionStorage only
+    (dies with the tab), sent only to api.meta.ai, never written into any
+    layer — the test suite asserts the key string appears in no stored
+    layer. A hosted backend remains the product-grade route (v0.3 list).
+- **Tests:** engine 12/12; original UI drive 15/15 (updated for per-profile
+  storage keys); new v0.2 drive 13/13 — profile creation/isolation, per-user
+  definitional levers (Sam's "promised day" kills the breach while Planner
+  1's stands), live-interview plumbing against a mocked API (open → answer
+  → verbatim mirror DRAFT → save → answers/notes/skips land in the right
+  user's layer). The real-key live interview itself is William's to try —
+  the vault key cannot be typed into a public page by an agent, by design.
+
 ## Open / next (v0.1 candidates)
 
 - Live Muse Spark calls via a small backend proxy (key stays server-side).
