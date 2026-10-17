@@ -92,6 +92,24 @@ running record. Newest entries at the bottom.*
   generation was build-time). The rule binds v0.1's live calls. Recorded in
   `data/agent-language.json` provenance and the README.
 
+- **2026-10-17 (Career Development Faye): the 6 AM trust critique of the
+  mock, with three watch items — dispositioned against the real build:**
+  (1) *Taught-away flags must visibly retire.* In the pre-alpha the re-plan
+  replaces the plan: the split is shown in the workings with the taught words
+  quoted, and stage 5's before/after shows the struggle count fall. Held as
+  designed. (2) *A plan run before a strike must say so.* **Fixed:** after any
+  teach or strike, the rendered plan carries a banner — "Your layer changed
+  after this run; the plan below cites the layer as it was at run time,
+  including anything since struck" — until the next run. (3) *No borrowed
+  streaks.* **Fixed:** the 212-proposal base is now labeled "sample history"
+  in the streak header; the session line counts only real actions taken in
+  the demo. In the product, the streak starts at zero. Her verdict on the
+  design (mock): "The demo doesn't just describe the principles — silence,
+  verbatim teaching, honest repricing, the audit strike — it behaves by
+  them." Unverified in her pass: phone width on the mock (her driver
+  couldn't resize); the live build uses the same responsive pattern as the
+  audited mock.
+
 ## Open / next (v0.1 candidates)
 
 - Live Muse Spark calls via a small backend proxy (key stays server-side).
