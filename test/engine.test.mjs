@@ -41,8 +41,29 @@ const byLane = (loads, lane) => loads.find(l => l.lane === lane);
   const cha = byLane(loads, 'Charlotte, NC');
   check('taught split removes S-102 from the Charlotte load',
     !cha.shipmentIds.includes('S-102') && cha.splitOutIds.includes('S-102'));
-  check('taught split clears both Charlotte struggles', cha.struggles.length === 0);
-  check('the split has a visible price', cha.splitCost > 0);
+  check('taught split clears the original two struggles',
+    !cha.struggles.some(s => s.kind === 'appointment-breach') &&
+    !cha.struggles.some(s => s.kind === 'stackability'));
+  check('the split has a visible price and a stated basis',
+    cha.splitCost === 419 && /60% of a full/.test(cha.splitBasis || ''));
+  // The split protects the rest of the load; it cannot fix S-102's own
+  // clock (still 10:30 vs a 10:00 appointment) — reported, not absorbed.
+  check('the split-off shipment still breaches, and the engine says so',
+    cha.struggles.length === 1 && cha.struggles[0].kind === 'split-residual' &&
+    cha.struggles[0].dollars === 1165 && cha.splitArriveText === '10:30');
+}
+
+// A taught rule whose words forbid splitting blocks the remedy — visibly.
+{
+  const { loads } = engine.plan(ships, defs, {
+    taught: { 'split-late-freight': { text: 'Hartline loads never split across two trailers — receiving counts pallets per trailer.' } }
+  });
+  const cha = byLane(loads, 'Charlotte, NC');
+  check('never-split rule keeps S-102 in the load',
+    cha.shipmentIds.includes('S-102') && cha.splitOutIds.length === 0);
+  check('the blocked remedy is confessed on the card',
+    cha.struggles.some(s => s.kind === 'rule-conflict') &&
+    cha.struggles.some(s => s.kind === 'appointment-breach'));
 }
 
 // The user's own definitions change the plan (the ontology is real, not set dressing).
