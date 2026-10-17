@@ -2,7 +2,8 @@
   "provenance": {
     "languageBy": "Muse Spark (muse-spark-1.3) via the Meta Model API — the same API the Ship Safe screener uses",
     "generated": "2026-10-17",
-    "rule": "The model wrote words only. Every number, cost, and decision in this demo is computed by js/engine.js from data/*.json. Tokens like {{dollars}} are filled by the app from engine output."
+    "rule": "The model wrote words only. Every number, cost, and decision in this demo is computed by js/engine.js from data/*.json. Tokens like {{dollars}} are filled by the app from engine output.",
+    "userWordsRule": "Second clause (Career Development Faye, 2026-10-17): user words are data, not raw material. Interview answers, override reasons, and anything the mirror quotes pass through VERBATIM — the engine carries them, the model never paraphrases them. Spark phrases agent-side narration around engine facts and user text; it does not rewrite user text, ever."
   },
   "strings": {
     "interviewIntro": "I'm the new agent on this account, and before I plan anything I need to learn how you work. This takes about two minutes.",
