@@ -19,6 +19,7 @@
   var MORNING_DEPART = 6;       // 06:00 next-day departure after cutoff miss
   var MIN_CHARGE_FACTOR = 0.6;  // split-off partial truck minimum charge
 
+  function laneSlug(dest) { return dest.replace(/[^a-z0-9]+/gi, '-'); }
   function parseT(s) { return new Date(s); }
   function fmtT(d) {
     var p = function (n) { return (n < 10 ? '0' : '') + n; };
@@ -120,7 +121,7 @@
     var pref = userAnswer(layer, 'cheapVsSafe');
     if (pref === 'cheap' && cheapest.carrier.id !== chosen.carrier.id) {
       struggles.push({
-        id: 'pref-cheap-' + dest, kind: 'preference-risk', teachable: false,
+        id: 'pref-cheap-' + laneSlug(dest), kind: 'preference-risk', teachable: false,
         dollars: cheapest.expectedFailure,
         title: 'Your “cheapest first” preference picked ' + cheapest.carrier.name,
         detail: cheapest.carrier.name + ' is $' + (chosen.freight - cheapest.freight) +
@@ -155,7 +156,7 @@
           defs.economics.detentionPerHour * lateHrs +
           (cust.anchor ? Math.round(cust.serviceFailureCost * 0.25) : 0);
         struggles.push({
-          id: 'appt-' + dest, kind: 'appointment-breach', teachable: true,
+          id: 'appt-' + laneSlug(dest), kind: 'appointment-breach', teachable: true,
           teachRule: 'split-late-freight',
           dollars: dollars,
           title: 'Consolidating puts Hartline past their appointment',
@@ -177,7 +178,7 @@
     if (nonStack.length && inLoad.length > 1 && !userSaysStacks) {
       var pallets = nonStack.reduce(function (n, s) { return n + s.pallets; }, 0);
       struggles.push({
-        id: 'stack-' + dest, kind: 'stackability', teachable: true,
+        id: 'stack-' + laneSlug(dest), kind: 'stackability', teachable: true,
         teachRule: 'never-mix-nonstack',
         dollars: defs.economics.damageRiskPerNonStackPallet * pallets,
         title: 'Non-stackable freight rides in a mixed load',
