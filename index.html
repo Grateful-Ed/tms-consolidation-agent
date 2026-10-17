@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TMS Consolidation Agent — Pre-Alpha Demo</title>
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div>
+      <h1>TMS Consolidation Agent</h1>
+      <p class="sub">Pre-alpha demo · Peach State Freight (fictional) · Built from the 2026-10-16 design session</p>
+    </div>
+    <div class="streak" id="streakBox" title="Trust is shown as a streak, not a decimal">
+      <div class="streak-label">Proposal streak</div>
+      <div class="streak-value" id="streakValue">—</div>
+      <div class="streak-session" id="streakSession"></div>
+    </div>
+  </div>
+  <p class="provenance" id="provenanceLine">Loading…</p>
+</header>
+
+<main>
+
+  <!-- STAGE 1 · CURATION -->
+  <section class="stage stage-1" id="stage1">
+    <div class="stage-head"><span class="stage-num">1</span><h2>Onboarding — the agent learns how you work</h2></div>
+    <div id="interviewBox"></div>
+    <div id="mirrorBox"></div>
+  </section>
+
+  <!-- STAGE 2 · THE DESK -->
+  <section class="stage stage-2" id="stage2">
+    <div class="stage-head"><span class="stage-num">2</span><h2>The planning desk</h2></div>
+    <div class="desk-grid">
+      <div>
+        <h3>Today's freight — awaiting consolidation</h3>
+        <div id="shipmentTable"></div>
+      </div>
+      <aside>
+        <h3>Definitions in force</h3>
+        <div id="constraintChip"></div>
+        <div id="definitionsPanel"></div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- STAGE 3 · THE RUN -->
+  <section class="stage stage-3" id="stage3">
+    <div class="stage-head"><span class="stage-num">3</span><h2>The run — plan + struggle report</h2></div>
+    <p class="stage-note">The agent proposes. It never makes a plan official — only tendering does that, and tendering is yours.</p>
+    <button class="primary big" id="runBtn">Run consolidation</button>
+    <div id="planBox"></div>
+  </section>
+
+  <!-- STAGE 4 · DECISIONS LOG -->
+  <section class="stage stage-4" id="stage4">
+    <div class="stage-head"><span class="stage-num">4</span><h2>Decisions — the record</h2></div>
+    <p class="stage-note">Every acceptance is documented: the warning, the reasoning, the human call. This log is the planner's alibi.</p>
+    <div id="decisionsBox"><p class="empty">No decisions yet. Take, change, or silence a struggle point above and it lands here.</p></div>
+  </section>
+
+  <!-- STAGE 5 · THE LOOP -->
+  <section class="stage stage-5" id="stage5">
+    <div class="stage-head"><span class="stage-num">5</span><h2>The loop — teaching, re-planning, audit</h2></div>
+    <div id="rerunBox"><p class="empty">Teach the agent something (Change it, on any struggle point) and the re-plan appears here.</p></div>
+    <div class="loop-grid">
+      <div>
+        <h3>Exception inbox <span class="tag">first slice</span></h3>
+        <div id="exceptionBox"></div>
+      </div>
+      <div>
+        <h3>Audit my layer</h3>
+        <p class="stage-note">Everything saved about how you work. Strike anything — no argument, nothing kept as "context."</p>
+        <div id="auditBox"></div>
+        <div class="audit-actions">
+          <button class="ghost" id="exportBtn">Export my layer (JSON)</button>
+          <label class="ghost file-label">Import a layer <input type="file" id="importFile" accept=".json" hidden></label>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <p>Concept pre-alpha. Sample data is fictional. The deterministic engine (<code>js/engine.js</code>) owns every number;
+  the agent's words come from Muse Spark via the Meta Model API — the same API the Ship Safe screener uses —
+  generated under a rule that figures may not change. Design record: the 2026-10-16 session summary and requirements (R1–R43).</p>
+</footer>
+
+<script src="js/engine.js"></script>
+<script src="js/layer.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

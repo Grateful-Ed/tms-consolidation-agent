@@ -1,0 +1,70 @@
+{
+  "provenance": {
+    "languageBy": "Muse Spark (muse-spark-1.3) via the Meta Model API — the same API the Ship Safe screener uses",
+    "generated": "2026-10-17",
+    "rule": "The model wrote words only. Every number, cost, and decision in this demo is computed by js/engine.js from data/*.json. Tokens like {{dollars}} are filled by the app from engine output."
+  },
+  "strings": {
+    "interviewIntro": "I'm the new agent on this account, and before I plan anything I need to learn how you work. This takes about two minutes.",
+    "questions": [
+      {
+        "id": "ontimeHartline",
+        "ask": "For Hartline Stores, what does on-time mean?",
+        "options": [
+          {
+            "value": "appointment",
+            "label": "By appointment time",
+            "sub": "Dock arrival by appointment time, no grace."
+          },
+          {
+            "value": "day",
+            "label": "On the promised day",
+            "sub": "Any time that day counts as on time."
+          }
+        ]
+      },
+      {
+        "id": "stackHartline",
+        "ask": "Hartline S-102 shows non-stackable. Is that right?",
+        "options": [
+          {
+            "value": "no-stack",
+            "label": "Correct, no stack",
+            "sub": "Nothing rides on top of it."
+          },
+          {
+            "value": "can-stack",
+            "label": "It can stack",
+            "sub": "System profile is wrong, it stacks fine."
+          }
+        ]
+      },
+      {
+        "id": "cheapVsSafe",
+        "ask": "Cheap carrier is shaky and it is anchor freight. Which way do I lean?",
+        "options": [
+          {
+            "value": "safe",
+            "label": "Protect the client",
+            "sub": "Pay for reliability on anchor freight."
+          },
+          {
+            "value": "cheap",
+            "label": "Cheapest first",
+            "sub": "Take the savings, flag the risk for me."
+          }
+        ]
+      }
+    ],
+    "landingLine": "That is the foundation, next I show you what I heard.",
+    "mirrorIntro": "Here is what I heard, correct me where I am wrong, nothing is saved until you say so.",
+    "mirrorDelta": "One item differs from the facility default: {{deltaText}}, confirm or fix it.",
+    "loadSummary": "{{lane}} — {{pallets}} pallets, {{shipments}} shipments, {{carrier}}, {{arriveText}}.",
+    "silenceLine": "No struggles on this one, I speak up when it counts.",
+    "notableIntro": "Why not cheapest:",
+    "struggleHeadline": "Before you approve {{lane}}:",
+    "payoffLine": "I changed this because you taught me {{reason}}.",
+    "teachPrompt": "Say the rule you want me to remember.",
+    "streakCaption": "Last {{total}} proposals: {{taken}} taken as-is, {{changed}} changed, {{rejected}} rejected."
+  }
+}
