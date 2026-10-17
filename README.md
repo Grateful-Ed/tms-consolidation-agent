@@ -55,6 +55,23 @@ and the appointment breach disappears; prefer cheapest-first and it obeys — an
 flags the expected failure cost of your preference. Teach it to split late
 Hartline freight and the re-plan does exactly that, at a visible price.
 
+## Users & the live interview (v0.2)
+
+- **Multiple users:** create, rename, delete, and switch users from the bar
+  under the header. Each user has their own interview, definition layer,
+  streak, and teaching — all saved per-user in the browser, so personas can
+  be tested side by side.
+- **Live interview:** stage 1's second mode is a real conversation with
+  Muse Spark — one question at a time, follow-ups when an answer sounds
+  rehearsed, a visible ten-minute clock, a signaled landing, then the
+  mirror (your words, verbatim) and the same save gate. It needs **your own
+  Meta Model API key**, pasted into the page: the key stays in the tab's
+  session storage, goes only to api.meta.ai, and is never saved. (A public
+  page can't hold a key of its own; a backend is the product-grade route.)
+
+The running build record is `docs/BUILD-SUMMARY.md`; the verbatim Faye↔Faye
+collaboration record is `docs/FAYE-EXCHANGE.md`.
+
 ## Run it locally
 
 ```sh
