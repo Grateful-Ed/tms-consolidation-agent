@@ -46,7 +46,7 @@ agent does speak, it counts.
 | Ledger | `data/shipments.json` | The record. The agent never writes to it. |
 | Knowledge layer ("ontology") | `data/definitions.json` + the user layer | Entities, definitions, and meanings — each with author + date. The agent reasons over these and cites them. |
 | Engine | `js/engine.js` | Deterministic. Owns **every number and every decision**. No model calls. |
-| Agent language | `data/agent-language.json` | Written by **Muse Spark** via the Meta Model API (the same API the Ship Safe screener uses), under a standing rule: the model phrases; figures may not change. Tokens like `{{dollars}}` are filled from engine output. |
+| Agent language | `data/agent-language.json` | Written by **Muse Spark** via the Meta Model API (the same API the Ship Safe screener uses), under a standing rule: the model phrases; figures may not change. Tokens like `{{dollars}}` are filled from engine output. Second clause: **user words are data, not raw material** — answers, override reasons, and quoted teaching pass through verbatim; the model never paraphrases the user. |
 | Layer store | `js/layer.js` | Draft vs. saved states, the save gate, streak, suppressions, export/import. |
 | UI | `index.html`, `css/app.css`, `js/app.js` | Renders engine output. Contains no planning logic. |
 
