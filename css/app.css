@@ -66,7 +66,8 @@ th { color: var(--faint); font-size: 11px; letter-spacing: .1em; text-transform:
 .load-cost { text-align: right; }
 .load-cost .big-num { font-size: 22px; font-weight: 800; }
 .load-cost .cap { font-size: 11px; color: var(--faint); }
-.workings { margin-top: 8px; font-size: 13px; color: var(--dim); }
+.workings { margin-top: 8px; font-size: 13px; color: var(--dim); overflow-x: auto; }
+.workings p, .struggle p, .def { overflow-wrap: break-word; }
 .workings summary { cursor: pointer; color: var(--ink); font-size: 13px; }
 .workings table { font-size: 13px; }
 .assump { font-style: italic; }
