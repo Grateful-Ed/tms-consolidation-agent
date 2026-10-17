@@ -67,7 +67,18 @@ running record. Newest entries at the bottom.*
   as designed; the two engine bugs found on the first run (duplicate breach
   report per shipment; a taught split that didn't fire) were fixed and are
   covered by the test suite.
-- *(live-site verification entry added when Pages is up)*
+- **Live (2026-10-17 ~15:20 ET):** repo pushed (main @ 6cee0919 + fix commit),
+  GitHub Pages enabled — **https://grateful-ed.github.io/tms-consolidation-agent/**
+  serves the demo and its data files (verified by direct fetch).
+- **Full-flow drive test (jsdom, scripted): 15/15 checks pass** — interview
+  renders with Spark's intro; mirror shows DRAFT before save and SAVED after;
+  layer persists; the run produces Charlotte's $1,165 + $182 struggles,
+  Greenville's deliberate silence, Savannah's declared assumption; Change-it
+  teaching saves the rule; the re-plan splits S-102 onto its own truck and
+  quotes the taught words in the payoff line; audit lists the rule and Strike
+  removes it. The drive test caught one real bug — struggle IDs contained
+  spaces/commas from lane names (invalid HTML ids) — fixed by slugifying IDs
+  in the engine; covered by the drive test from here on.
 
 ## Open / next (v0.1 candidates)
 
