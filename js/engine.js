@@ -40,6 +40,15 @@
   function taught(layer, ruleId) {
     return !!(layer && layer.taught && layer.taught[ruleId]);
   }
+  function taughtText(layer, ruleId) {
+    return (layer && layer.taught && layer.taught[ruleId] && layer.taught[ruleId].text) || '';
+  }
+  // A taught rule whose own words forbid splitting ("never split", "don't
+  // split") blocks the split remedy: the engine obeys the planner's words,
+  // not just the struggle's canned remedy — and says so on the card.
+  function forbidsSplit(text) {
+    return /never split|don'?t split|do not split|no splitting|not split|never be split/i.test(text || '');
+  }
 
   function plan(shipments, defs, layer) {
     layer = layer || {};
@@ -72,18 +81,25 @@
       } else { totalWeight += s.weightLb; }
     });
 
-    // Taught rules can split a shipment out of the consolidation.
+    // Taught rules can split a shipment out of the consolidation —
+    // unless the rule's own words forbid splitting.
     var splitOut = [];
     var inLoad = ships.slice();
     var splitRule = null;
+    var splitBlocked = null;
     ships.forEach(function (s) {
       var lateSplit = taught(layer, 'split-late-freight') &&
         s.customer === 'Hartline Stores' && isLate(s);
       var mixSplit = taught(layer, 'never-mix-nonstack') &&
         s.stackable === false && ships.length > 1;
       if (lateSplit || mixSplit) {
-        splitOut.push(s);
-        splitRule = lateSplit ? 'split-late-freight' : 'never-mix-nonstack';
+        var rule = lateSplit ? 'split-late-freight' : 'never-mix-nonstack';
+        if (forbidsSplit(taughtText(layer, rule))) {
+          splitBlocked = { rule: rule, text: taughtText(layer, rule) };
+        } else {
+          splitOut.push(s);
+          splitRule = rule;
+        }
       }
     });
     inLoad = inLoad.filter(function (s) { return splitOut.indexOf(s) === -1; });
@@ -190,17 +206,77 @@
       });
     }
 
+    // A taught rule that forbids splitting blocks the remedy — visibly.
+    if (splitBlocked) {
+      struggles.push({
+        id: 'rule-block-' + laneSlug(dest), kind: 'rule-conflict', teachable: false, dollars: 0,
+        title: 'Your rule forbids the fix I know',
+        detail: 'You taught: “' + splitBlocked.text + '” The remedy I know for the flag above is ' +
+          'splitting the freight onto its own truck — your rule forbids it, so this plan keeps the ' +
+          'consolidation and the flag stands. Strike the rule or re-teach it if you want the split.',
+        cites: []
+      });
+    }
+
+    // The split-off freight gets its own clock, computed and shown — and if
+    // it still breaches, that is reported, not absorbed (Career Faye's catch:
+    // a split protects the rest of the load; it cannot fix the late
+    // shipment's own appointment).
+    var splitDepart = null, splitArrive = null;
+    if (splitOut.length) {
+      var splitReady = splitOut.reduce(function (m, s) {
+        return Math.max(m, parseT(s.readyBy).getTime());
+      }, 0);
+      splitDepart = new Date(splitReady + LOAD_HOURS * 3600e3);
+      if (splitDepart.getHours() >= CUTOFF_HOUR) {
+        splitDepart = new Date(splitDepart.getFullYear(), splitDepart.getMonth(), splitDepart.getDate() + 1, MORNING_DEPART, 0);
+      }
+      splitArrive = new Date(splitDepart.getTime() + lane.driveHours * 3600e3);
+      var splitHartline = splitOut.filter(function (s) { return s.customer === 'Hartline Stores'; });
+      if (splitHartline.length && userAnswer(layer, 'ontimeHartline') !== 'day') {
+        var cust2 = defs.customers['Hartline Stores'];
+        var appt2 = new Date(splitHartline.reduce(function (m, s) {
+          return Math.min(m, parseT(s.appointment).getTime());
+        }, Infinity));
+        if (splitArrive > appt2) {
+          var lateHrs2 = Math.max(1, Math.ceil((splitArrive - appt2) / 3600e3));
+          var ids2 = splitOut.map(function (s) { return s.id; }).join(', ');
+          struggles.push({
+            id: 'split-residual-' + laneSlug(dest), kind: 'split-residual', teachable: false,
+            dollars: cust2.lateFeePerOccurrence + defs.economics.detentionPerHour * lateHrs2 +
+              (cust2.anchor ? Math.round(cust2.serviceFailureCost * 0.25) : 0),
+            title: ids2 + ' still misses its own appointment on the separate truck',
+            detail: 'The split protects the rest of the load — it cannot fix ' + ids2 + '’s own clock. ' +
+              'It departs ' + fmtT(splitDepart) + ' and arrives ' + fmtT(splitArrive) +
+              ' against a ' + fmtT(appt2) + ' appointment: $' + cust2.lateFeePerOccurrence +
+              ' late fee + $' + (defs.economics.detentionPerHour * lateHrs2) + ' detention + $' +
+              (cust2.anchor ? Math.round(cust2.serviceFailureCost * 0.25) : 0) +
+              ' service-risk provision. Shown, not absorbed.',
+            cites: ['ontime-hartline', 'hartline-worth']
+          });
+        }
+      }
+    }
+
     struggles.sort(function (a, b) { return b.dollars - a.dollars; });
 
     var splitCost = splitOut.length
       ? money(chosen.carrier.ratePerMile * lane.miles * MIN_CHARGE_FACTOR)
       : 0;
+    var splitBasis = splitOut.length
+      ? (MIN_CHARGE_FACTOR * 100) + '% of a full ' + dest + ' run at ' + chosen.carrier.name +
+        '’s $' + chosen.carrier.ratePerMile + '/mi × ' + lane.miles + ' mi ($' +
+        money(chosen.carrier.ratePerMile * lane.miles) + ') — the minimum charge for a second, part-loaded truck'
+      : null;
 
     return {
       id: 'L' + (idx + 1), lane: dest,
       shipmentIds: inLoad.map(function (s) { return s.id; }),
       splitOutIds: splitOut.map(function (s) { return s.id; }),
-      splitRule: splitRule, splitCost: splitCost,
+      splitRule: splitRule, splitCost: splitCost, splitBasis: splitBasis,
+      splitDepartText: splitDepart ? fmtT(splitDepart) : null,
+      splitArriveText: splitArrive ? fmtT(splitArrive) : null,
+      appliedRule: splitRule ? { rule: splitRule, text: taughtText(layer, splitRule) } : null,
       carrier: chosen.carrier, freightCost: chosen.freight,
       expectedFailure: chosen.expectedFailure, expectedTotal: chosen.total + splitCost,
       departAt: depart.toISOString(), arriveAt: arrive.toISOString(),
