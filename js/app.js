@@ -8,10 +8,21 @@
 
   var $ = function (id) { return document.getElementById(id); };
   var FACILITY_DEFAULTS = { ontimeHartline: 'appointment', stackHartline: 'no-stack', cheapVsSafe: 'safe' };
-  var MIRROR_PREFIX = {
-    ontimeHartline: 'For me, on-time for Hartline means ',
-    stackHartline: 'For me, S-102: ',
-    cheapVsSafe: 'For me, when cheap fights safe on the anchor client: '
+  // Mirror lines are full first-person clauses, so prefix + answer lands as
+  // one sentence in the planner's voice (Career Faye's copy pass, item c).
+  var MIRROR_SENTENCES = {
+    ontimeHartline: {
+      appointment: 'For me, on-time for Hartline means dock-door arrival by the appointment — no grace.',
+      day: 'For me, on-time for Hartline means arrival on the promised day.'
+    },
+    stackHartline: {
+      'no-stack': 'For me, S-102 does not stack — nothing rides on top of it.',
+      'can-stack': 'For me, S-102 can stack — the system profile is wrong.'
+    },
+    cheapVsSafe: {
+      safe: 'For me, when cheap fights safe on the anchor client, I pay for reliability.',
+      cheap: 'For me, when cheap fights safe on the anchor client, I take the savings and flag the risk.'
+    }
   };
   var CITE_LABELS = {
     'ontime-hartline': 'On-time, Hartline — Dana, Mar 12',
@@ -25,6 +36,7 @@
     draft: null,           // {answers:{}, skipped:[]} while interviewing
     plan: null,            // last engine result (stage 3)
     planStale: false,      // layer changed after the run (Career Faye's leak #2)
+    staleNotes: [],        // what changed, named — the banner says it outright
     planLayerSnapshot: null,
     resolved: {},          // struggleId -> {action, text}
     streak: TMSLayer.loadStreak(),
@@ -39,11 +51,23 @@
   function fill(tpl, map) {
     return tpl.replace(/\{\{(\w+)\}\}/g, function (m, k) { return map[k] != null ? map[k] : m; });
   }
-  function lowerFirst(s) { return s.charAt(0).toLowerCase() + s.slice(1); }
   function mirrorLine(qid, value) {
+    var table = MIRROR_SENTENCES[qid] || {};
+    if (table[value]) return table[value];
     var q = S.lang.questions.filter(function (x) { return x.id === qid; })[0];
     var opt = q.options.filter(function (o) { return o.value === value; })[0];
-    return MIRROR_PREFIX[qid] + lowerFirst(opt.sub);
+    return opt ? opt.label : value;
+  }
+  // Splice a sentence into a template without punctuation collisions:
+  // if the token is followed by punctuation in the template, the sentence's
+  // own terminal period comes off (Career Faye's copy pass, item b).
+  function splice(tpl, token, text) {
+    var idx = tpl.indexOf(token);
+    if (idx === -1) return tpl;
+    var after = tpl.charAt(idx + token.length);
+    var t = text;
+    if (after && ',.;:'.indexOf(after) !== -1) t = t.replace(/[.]$/, '');
+    return tpl.replace(token, t);
   }
   function deltas(answers) {
     var out = [];
@@ -93,9 +117,13 @@
       else if (!picked) { html += '<button class="skip" data-skip="' + q.id + '">Skip this one</button>'; }
       html += '</div>';
     });
-    var done = S.lang.questions.every(function (q) {
-      return S.draft.answers[q.id] || S.draft.skipped.indexOf(q.id) !== -1;
-    });
+    var remaining = S.lang.questions.filter(function (q) {
+      return !S.draft.answers[q.id] && S.draft.skipped.indexOf(q.id) === -1;
+    }).length;
+    if (remaining === 1) {
+      html += '<p class="stage-note">One more — then I\'ll show you what I\'ve got.</p>';
+    }
+    var done = remaining === 0;
     if (done) {
       html += '<p>' + esc(S.lang.landingLine) + '</p>' +
         '<button class="save" id="showMirrorBtn">Show me what you heard</button>';
@@ -136,7 +164,7 @@
     var ds = deltas(layerLike.answers || {});
     var deltaHtml = ds.length
       ? ds.map(function (d) {
-          return '<div class="delta">' + esc(fill(S.lang.mirrorDelta, { deltaText: d.text })) + '</div>';
+          return '<div class="delta">' + esc(splice(S.lang.mirrorDelta, '{{deltaText}}', d.text)) + '</div>';
         }).join('')
       : '';
     mir.innerHTML = '<div class="mirror">' +
@@ -214,7 +242,12 @@
       l.totalWeight.toLocaleString() + ' lb · departs ' + l.departText + ', arrives ' + l.arriveText + '.</p>';
     if (l.splitOutIds.length) {
       work += '<p><b>' + l.splitOutIds.join(', ') + ' ships on its own truck (+$' + l.splitCost +
-        ')</b> — split by your taught rule' + (S.layer.taught[l.splitRule] ? ': “' + esc(S.layer.taught[l.splitRule].text) + '”' : '') + '.</p>';
+        ')</b>, departing ' + esc(l.splitDepartText || '') + ', arriving ' + esc(l.splitArriveText || '') + '.</p>';
+      if (l.splitBasis) { work += '<p>Split cost basis: ' + esc(l.splitBasis) + '.</p>'; }
+      if (l.appliedRule) {
+        work += '<p>How I applied your rule: the flagged shipment ships whole on its own truck — ' +
+          'no shipment is divided across trailers. Your words: “' + esc(l.appliedRule.text) + '”</p>';
+      }
     }
     work += '<table><thead><tr><th>Carrier</th><th>Freight</th><th>Expected failure cost</th><th>Expected total</th><th></th></tr></thead><tbody>' +
       l.carrierOptions.map(function (o) {
@@ -270,7 +303,9 @@
     var note = (S.layer.savedAt ? '' :
       '<p class="stage-note">Running on facility defaults — the interview in stage 1 is how you make them yours.</p>');
     if (S.planStale) {
-      note += '<div class="delta"><b>Your layer changed after this run.</b> The plan below cites the layer as it was at run time — including anything since struck. Re-run (stage 5, or the button above) to apply the current layer.</div>';
+      note += '<div class="delta"><b>Your layer changed after this run' +
+        (S.staleNotes.length ? ' — ' + esc(S.staleNotes.join('; ')) : '') +
+        '.</b> The plan below cites the layer as it was at run time. Re-run (stage 5, or the button above) to apply the current layer.</div>';
     }
     $('planBox').innerHTML = note + S.plan.loads.map(function (l) { return loadCard(l, 'main'); }).join('');
     bindPlanActions($('planBox'), 'main');
@@ -309,6 +344,8 @@
           renderPlan();
         } else if (act === 'never') {
           S.suppressions = TMSLayer.addSuppression(f.s.kind, f.load.lane);
+          S.planStale = true;
+          S.staleNotes.push('you silenced ' + f.s.kind + ' flags on ' + f.load.lane);
           S.resolved[f.s.id] = { action: 'never', text: 'Silenced by the planner: “never flag this again.” The suppression is on the record in the workings.' };
           logDecision({ when: new Date().toISOString(), action: 'never', struggleId: f.s.id, text: 'Never flag again — ' + f.s.kind + ' on ' + f.load.lane });
           renderPlan();
@@ -325,6 +362,7 @@
             }
             S.resolved[f.s.id] = { action: 'change', text: 'Changed — and taught: “' + reason + '” Remembered for ' + f.load.lane + '.' };
             S.planStale = true;
+            S.staleNotes.push('you taught a rule — “' + reason + '”');
             logDecision({ when: new Date().toISOString(), action: 'change', struggleId: f.s.id, text: 'Changed it — taught: “' + reason + '”' });
             renderDefinitions(); renderAudit(); renderRerun(true);
             renderPlan();
@@ -348,9 +386,9 @@
     // The 212 base is SAMPLE backstory and is labeled as such — a streak in
     // the real product starts at zero and only counts real proposals
     // (Career Development Faye's leak #3: no manufactured confidence).
-    $('streakValue').innerHTML = esc(fill(S.lang.streakCaption, {
+    $('streakValue').textContent = fill(S.lang.streakCaption, {
       total: b.total, taken: b.taken, changed: b.changed, rejected: b.rejected
-    })) + ' <span class="tag">sample history</span>';
+    }) + ' (sample history)';
     var s = S.streak.session;
     $('streakSession').textContent = (s.taken || s.changed || s.rejected)
       ? 'This session: ' + s.taken + ' taken · ' + s.changed + ' changed · ' + s.rejected + ' rejected'
@@ -366,7 +404,9 @@
       box.innerHTML = '<p class="empty">Run the consolidation in stage 3 first — then teach the agent something and the re-plan appears here.</p>';
       return;
     }
-    box.innerHTML = '<p>Your layer has changed since the run. Re-plan with what the agent now knows.</p>' +
+    box.innerHTML = '<p>Your layer has changed since the run' +
+      (S.staleNotes.length ? ' — ' + esc(S.staleNotes.join('; ')) : '') +
+      '. Re-plan with what the agent now knows.</p>' +
       '<button class="primary" id="rerunBtn">Re-run with my current layer</button><div id="rerunOut"></div>';
     $('rerunBtn').onclick = function () {
       var before = S.plan;
@@ -383,13 +423,16 @@
           (l2.splitOutIds.length ? ' (+ ' + l2.splitOutIds.join(', ') + ' on its own truck)' : '') + '</div></div>';
         if (changed && hasTeach) {
           var reasons = Object.keys(S.layer.taught).map(function (k) { return S.layer.taught[k].text; });
-          html += '<div class="payoff">' + esc(fill(S.lang.payoffLine, { reason: '' })) +
-            ' <span class="quote">“' + esc(reasons[reasons.length - 1]) + '”</span></div>';
+          var reason = reasons[reasons.length - 1];
+          var line = S.lang.payoffLine.replace('{{reason}}', '“' + reason + '”');
+          if (/[.]$/.test(reason)) line = line.replace(/[.]$/, '');
+          html += '<div class="payoff">' + esc(line) + '</div>';
         }
       });
       $('rerunOut').innerHTML = html;
       S.plan = after;
       S.planStale = false;
+      S.staleNotes = [];
       renderPlan();
     };
     if (announce) { box.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }
@@ -430,8 +473,18 @@
     $('auditBox').innerHTML = html;
     $('auditBox').querySelectorAll('[data-strike-kind]').forEach(function (b) {
       b.onclick = function () {
-        S.layer = TMSLayer.strikeFromLayer(S.layer, b.dataset.strikeKind, b.dataset.strikeKey);
-        if (S.plan) { S.planStale = true; renderPlan(); }
+        var kind = b.dataset.strikeKind, key = b.dataset.strikeKey;
+        var label = key;
+        if (kind === 'answer') label = 'your answer — “' + mirrorLine(key, S.layer.answers[key]) + '”';
+        if (kind === 'taught') label = 'the taught rule — “' + (S.layer.taught[key] || {}).text + '”';
+        if (kind === 'note') label = 'an interview note — “' + ((S.layer.notes || [])[Number(key)] || {}).text + '”';
+        if (kind === 'skip') label = 'the skip on ' + key;
+        S.layer = TMSLayer.strikeFromLayer(S.layer, kind, key);
+        if (S.plan) {
+          S.planStale = true;
+          S.staleNotes.push('you struck ' + label);
+          renderPlan();
+        }
         renderAudit(); renderDefinitions(); renderInterview(); renderRerun(false);
       };
     });
@@ -454,7 +507,7 @@
     S.layer = TMSLayer.loadLayer();
     S.streak = TMSLayer.loadStreak();
     S.suppressions = TMSLayer.loadSuppressions();
-    S.plan = null; S.resolved = {}; S.draft = null; S.planStale = false;
+    S.plan = null; S.resolved = {}; S.draft = null; S.planStale = false; S.staleNotes = [];
     $('planBox').innerHTML = '';
     renderProfiles();
     renderInterview(); renderDefinitions();
@@ -522,6 +575,7 @@
         S.plan = TMSEngine.plan(S.ships, S.defs, S.layer);
         S.resolved = {};
         S.planStale = false;
+        S.staleNotes = [];
         renderPlan(); renderRerun(false);
       };
       $('exportBtn').onclick = function () {
